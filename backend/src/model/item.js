@@ -1,0 +1,1 @@
+async function getAllItems() { return await pool.query('SELECT * FROM itens'); }
