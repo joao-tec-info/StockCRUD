@@ -1,29 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Spinner, Alert } from 'react-bootstrap';
-import { getItens, createItem } from '../services/api';
+import { getItens, createItem, deleteItem } from '../services/api';
 import toast from 'react-hot-toast';
 import ItemFormModal from '../components/stock/ItemFormModal';
+import DeleteConfirmModal from '../components/stock/DeleteConfirmModal'; // ← novo import
 
 export default function StockListPage() {
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Estados do modal e formulário
-  const [showModal, setShowModal] = useState(false);
+  // Modal de cadastro
+  const [showFormModal, setShowFormModal] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
     quantidade: '',
     preco: ''
   });
 
-  const handleClose = () => {
-    setShowModal(false);
-    // Limpa o formulário ao fechar
+  // Modal de exclusão
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const handleCloseForm = () => {
+    setShowFormModal(false);
     setFormData({ nome: '', quantidade: '', preco: '' });
   };
 
-  const handleShow = () => setShowModal(true);
+  const handleShowForm = () => setShowFormModal(true);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,7 +37,6 @@ export default function StockListPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validações básicas
     if (!formData.nome.trim()) {
       toast.error('O nome é obrigatório');
       return;
@@ -55,13 +58,37 @@ export default function StockListPage() {
       };
 
       const response = await createItem(dataToSend);
-
       setItens(prev => [...prev, response.data]);
       toast.success('Item cadastrado com sucesso!');
-      handleClose();
+      handleCloseForm();
     } catch (err) {
       console.error('Erro ao cadastrar:', err);
       toast.error('Erro ao cadastrar o item');
+    }
+  };
+
+  // Exclusão
+  const handleShowDelete = (item) => {
+    setItemToDelete(item);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseDelete = () => {
+    setShowDeleteModal(false);
+    setItemToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      await deleteItem(itemToDelete.id);
+      setItens(prev => prev.filter(i => i.id !== itemToDelete.id));
+      toast.success('Item excluído com sucesso!');
+      handleCloseDelete();
+    } catch (err) {
+      console.error('Erro ao excluir:', err);
+      toast.error('Erro ao excluir o item');
     }
   };
 
@@ -87,7 +114,7 @@ export default function StockListPage() {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Estoque Atual</h2>
-        <Button variant="success" size="lg" onClick={handleShow}>
+        <Button variant="success" size="lg" onClick={handleShowForm}>
           + Novo Item
         </Button>
       </div>
@@ -118,10 +145,19 @@ export default function StockListPage() {
                   })}
                 </td>
                 <td>
-                  <Button variant="outline-primary" size="sm" className="me-2">
+                  <Button 
+                    variant="outline-primary" 
+                    size="sm" 
+                    className="me-2"
+                    disabled 
+                  >
                     Editar
                   </Button>
-                  <Button variant="outline-danger" size="sm">
+                  <Button 
+                    variant="outline-danger" 
+                    size="sm"
+                    onClick={() => handleShowDelete(item)}
+                  >
                     Excluir
                   </Button>
                 </td>
@@ -131,13 +167,21 @@ export default function StockListPage() {
         </Table>
       )}
 
-      
+      {/* Modal de cadastro */}
       <ItemFormModal
-        show={showModal}
-        onHide={handleClose}
+        show={showFormModal}
+        onHide={handleCloseForm}
         onSubmit={handleSubmit}
         formData={formData}
         onChange={handleChange}
+      />
+
+      {/* Modal de confirmação de exclusão */}
+      <DeleteConfirmModal
+        show={showDeleteModal}
+        onHide={handleCloseDelete}
+        onConfirm={handleConfirmDelete}
+        itemName={itemToDelete?.nome || ''}
       />
     </div>
   );
