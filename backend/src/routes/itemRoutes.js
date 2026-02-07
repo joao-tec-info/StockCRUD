@@ -1,15 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/db');
+const itemController = require('../controllers/itemController');
 
-router.get('/', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM itens ORDER BY id');
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Erro ao listar itens:', err);
-    res.status(500).json({ error: 'Erro interno ao listar itens' });
-  }
-});
+router.get('/', itemController.listarItens);
+router.get('/:id', itemController.buscarItemPorId);
+router.post('/', itemController.criarItem);
+router.put('/:id', itemController.atualizarItem);
+router.delete('/:id', itemController.removerItem);
 
 module.exports = router;
