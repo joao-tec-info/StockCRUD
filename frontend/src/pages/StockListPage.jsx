@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Spinner, Alert } from 'react-bootstrap';
-import { getItens, createItem, deleteItem } from '../services/api';
+import { getItens, createItem, updateItem, deleteItem } from '../services/api';
 import toast from 'react-hot-toast';
 import ItemFormModal from '../components/stock/ItemFormModal';
-import DeleteConfirmModal from '../components/stock/DeleteConfirmModal'; // ← novo import
+import DeleteConfirmModal from '../components/stock/DeleteConfirmModal';
 
 export default function StockListPage() {
   const [itens, setItens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal de cadastro
+  // Modal de formulário (usado tanto para criar quanto para editar)
   const [showFormModal, setShowFormModal] = useState(false);
   const [formData, setFormData] = useState({
     nome: '',
     quantidade: '',
     preco: ''
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   // Modal de exclusão
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -25,9 +27,26 @@ export default function StockListPage() {
   const handleCloseForm = () => {
     setShowFormModal(false);
     setFormData({ nome: '', quantidade: '', preco: '' });
+    setIsEditing(false);
+    setEditingId(null);
   };
 
-  const handleShowForm = () => setShowFormModal(true);
+  const handleShowCreate = () => {
+    setIsEditing(false);
+    setFormData({ nome: '', quantidade: '', preco: '' });
+    setShowFormModal(true);
+  };
+
+  const handleShowEdit = (item) => {
+    setIsEditing(true);
+    setEditingId(item.id);
+    setFormData({
+      nome: item.nome,
+      quantidade: item.quantidade.toString(),
+      preco: item.preco.toString()
+    });
+    setShowFormModal(true);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,13 +76,26 @@ export default function StockListPage() {
         preco: Number(formData.preco)
       };
 
-      const response = await createItem(dataToSend);
-      setItens(prev => [...prev, response.data]);
-      toast.success('Item cadastrado com sucesso!');
+      let response;
+
+      if (isEditing) {
+        // Atualização
+        response = await updateItem(editingId, dataToSend);
+        setItens(prev =>
+          prev.map(i => (i.id === editingId ? response.data : i))
+        );
+        toast.success('Item atualizado com sucesso!');
+      } else {
+        // Criação
+        response = await createItem(dataToSend);
+        setItens(prev => [...prev, response.data]);
+        toast.success('Item cadastrado com sucesso!');
+      }
+
       handleCloseForm();
     } catch (err) {
-      console.error('Erro ao cadastrar:', err);
-      toast.error('Erro ao cadastrar o item');
+      console.error('Erro ao salvar:', err);
+      toast.error('Erro ao salvar o item');
     }
   };
 
@@ -114,7 +146,7 @@ export default function StockListPage() {
     <div>
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2 className="mb-0">Estoque Atual</h2>
-        <Button variant="success" size="lg" onClick={handleShowForm}>
+        <Button variant="success" size="lg" onClick={handleShowCreate}>
           + Novo Item
         </Button>
       </div>
@@ -145,16 +177,16 @@ export default function StockListPage() {
                   })}
                 </td>
                 <td>
-                  <Button 
-                    variant="outline-primary" 
-                    size="sm" 
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
                     className="me-2"
-                    disabled 
+                    onClick={() => handleShowEdit(item)}
                   >
                     Editar
                   </Button>
-                  <Button 
-                    variant="outline-danger" 
+                  <Button
+                    variant="outline-danger"
                     size="sm"
                     onClick={() => handleShowDelete(item)}
                   >
@@ -167,13 +199,15 @@ export default function StockListPage() {
         </Table>
       )}
 
-      {/* Modal de cadastro */}
+      {/* Modal de cadastro / edição */}
       <ItemFormModal
         show={showFormModal}
         onHide={handleCloseForm}
         onSubmit={handleSubmit}
         formData={formData}
         onChange={handleChange}
+        title={isEditing ? "Editar Item" : "Novo Item de Estoque"}
+        buttonText={isEditing ? "Atualizar" : "Salvar Item"}
       />
 
       {/* Modal de confirmação de exclusão */}
