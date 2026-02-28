@@ -44,6 +44,19 @@ export default function ItemFormModal({
             />
           </Form.Group>
 
+          <Form.Group className="mb-3" controlId="minimo">
+            <Form.Label>Quantidade mínima</Form.Label>
+            <Form.Control
+              type="number"
+              name="minimo"
+              value={formData.minimo}
+              onChange={onChange}
+              min="0"
+              placeholder="Ex: 5"
+              required
+            />
+          </Form.Group>
+
           <Form.Group className="mb-3" controlId="preco">
             <Form.Label>Preço (R$)</Form.Label>
             <Form.Control

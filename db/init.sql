@@ -16,18 +16,19 @@ CREATE TABLE IF NOT EXISTS produtos (
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de itens (usada pelo backend)
+-- Tabela de itens
 CREATE TABLE IF NOT EXISTS itens (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     quantidade INTEGER NOT NULL CHECK (quantidade >= 0),
     preco NUMERIC(12,2) NOT NULL CHECK (preco >= 0),
+    minimo INTEGER NOT NULL DEFAULT 1 CHECK (minimo >= 0),
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Insere item de exemplo
-INSERT INTO itens (nome, quantidade, preco)
-VALUES ('Item de exemplo', 5, 19.90) ON CONFLICT DO NOTHING;
+INSERT INTO itens (nome, quantidade, preco, minimo)
+VALUES ('Item de exemplo', 5, 19.90, 3) ON CONFLICT DO NOTHING;
 
 -- Tabela de movimentações 
 CREATE TABLE IF NOT EXISTS movimentacoes (
@@ -39,7 +40,7 @@ CREATE TABLE IF NOT EXISTS movimentacoes (
     usuario_id INTEGER NOT NULL REFERENCES usuarios(id)
 );
 
--- Popular um admin de teste (senha: admin123 - hash gerado com bcrypt)
+-- Popular um admin ou outros usuarios de teste (senha: admin123 - hash gerado com bcrypt)
 INSERT INTO usuarios (usuario, senha, perfil)
 VALUES (
     'admin',

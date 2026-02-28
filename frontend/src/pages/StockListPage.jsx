@@ -15,7 +15,8 @@ export default function StockListPage() {
   const [formData, setFormData] = useState({
     nome: '',
     quantidade: '',
-    preco: ''
+    preco: '',
+    minimo: ''
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -33,7 +34,7 @@ export default function StockListPage() {
 
   const handleShowCreate = () => {
     setIsEditing(false);
-    setFormData({ nome: '', quantidade: '', preco: '' });
+    setFormData({ nome: '', quantidade: '', preco: '', minimo: '' });
     setShowFormModal(true);
   };
 
@@ -43,7 +44,8 @@ export default function StockListPage() {
     setFormData({
       nome: item.nome,
       quantidade: item.quantidade.toString(),
-      preco: item.preco.toString()
+      preco: item.preco.toString(),
+      minimo: (item.minimo ?? 0).toString()
     });
     setShowFormModal(true);
   };
@@ -68,12 +70,17 @@ export default function StockListPage() {
       toast.error('Preço deve ser um número positivo');
       return;
     }
+    if (formData.minimo === '' || Number(formData.minimo) < 0) {
+      toast.error('Quantidade mínima deve ser um número (>= 0)');
+      return;
+    }
 
     try {
       const dataToSend = {
         nome: formData.nome.trim(),
         quantidade: Number(formData.quantidade),
-        preco: Number(formData.preco)
+        preco: Number(formData.preco),
+        minimo: Number(formData.minimo)
       };
 
       let response;
@@ -154,22 +161,37 @@ export default function StockListPage() {
       {itens.length === 0 ? (
         <Alert variant="info">Nenhum item cadastrado ainda.</Alert>
       ) : (
-        <Table striped bordered hover responsive className="shadow-sm">
+        <>
+          <div className="mb-3">
+            <small>
+              <span className="badge bg-danger me-2">Baixo</span>
+              <span className="badge bg-warning text-dark me-2">Atenção</span>
+              <span className="badge bg-success">OK</span>
+              <span className="ms-2 text-muted">(Linhas coloridas mostram o status comparando quantidade com o mínimo)</span>
+            </small>
+          </div>
+          <Table striped bordered hover responsive className="shadow-sm">
           <thead className="table-dark">
             <tr>
               <th>ID</th>
               <th>Nome</th>
-              <th>Quantidade</th>
+                  <th>Quantidade</th>
+                  <th>Minimo</th>
               <th>Preço (R$)</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {itens.map(item => (
-              <tr key={item.id}>
+                  <tr key={item.id} className={
+                    item.minimo != null && Number(item.quantidade) <= Number(item.minimo)
+                      ? 'table-danger'
+                      : (item.minimo != null && Number(item.quantidade) <= Number(item.minimo) * 1.5 ? 'table-warning' : '')
+                  }>
                 <td>{item.id}</td>
                 <td>{item.nome}</td>
-                <td>{item.quantidade}</td>
+                    <td>{item.quantidade}</td>
+                    <td>{item.minimo ?? '-'}</td>
                 <td>
                   {Number(item.preco).toLocaleString('pt-BR', {
                     style: 'currency',
@@ -197,6 +219,7 @@ export default function StockListPage() {
             ))}
           </tbody>
         </Table>
+        </>
       )}
 
       {/* Modal de cadastro / edição */}

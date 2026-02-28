@@ -31,19 +31,19 @@ async function buscarItemPorId(req, res) {
 // Criar novo item
 async function criarItem(req, res) {
   try {
-    const { nome, quantidade, preco } = req.body;
+    const { nome, quantidade, preco, minimo } = req.body;
 
-    if (!nome || quantidade === undefined || preco === undefined) {
-      return res.status(400).json({ error: 'Nome, quantidade e preço são obrigatórios' });
+    if (!nome || quantidade === undefined || preco === undefined || minimo === undefined) {
+      return res.status(400).json({ error: 'Nome, quantidade, preço e mínimo são obrigatórios' });
     }
 
-    if (quantidade < 0 || preco < 0) {
-      return res.status(400).json({ error: 'Quantidade e preço não podem ser negativos' });
+    if (quantidade < 0 || preco < 0 || minimo < 0) {
+      return res.status(400).json({ error: 'Quantidade, preço e mínimo não podem ser negativos' });
     }
 
     const result = await pool.query(
-      'INSERT INTO itens (nome, quantidade, preco) VALUES ($1, $2, $3) RETURNING *',
-      [nome, quantidade, preco]
+      'INSERT INTO itens (nome, quantidade, preco, minimo) VALUES ($1, $2, $3, $4) RETURNING *',
+      [nome, quantidade, preco, minimo]
     );
 
     return res.status(201).json(result.rows[0]);
@@ -57,9 +57,9 @@ async function criarItem(req, res) {
 async function atualizarItem(req, res) {
   try {
     const { id } = req.params;
-    const { nome, quantidade, preco } = req.body;
+    const { nome, quantidade, preco, minimo } = req.body;
 
-    if (!nome && quantidade === undefined && preco === undefined) {
+    if (!nome && quantidade === undefined && preco === undefined && minimo === undefined) {
       return res.status(400).json({ error: 'Informe pelo menos um campo para atualizar' });
     }
 
@@ -68,10 +68,11 @@ async function atualizarItem(req, res) {
        SET nome = COALESCE($1, nome),
            quantidade = COALESCE($2, quantidade),
            preco = COALESCE($3, preco),
+           minimo = COALESCE($4, minimo),
            criado_em = CURRENT_TIMESTAMP
-       WHERE id = $4
+       WHERE id = $5
        RETURNING *`,
-      [nome, quantidade, preco, id]
+      [nome, quantidade, preco, minimo, id]
     );
 
     if (result.rowCount === 0) {
