@@ -5,6 +5,8 @@ const cors = require('cors');
 const pool = require('./config/db');
 const itemRoutes = require('./routes/itemRoutes');
 const authRoutes = require('./routes/authRoutes');
+const movimentacaoRoutes = require('./routes/movimentacaoRoutes');
+const setorRoutes = require('./routes/setorRoutes');
 
 const app = express();
 
@@ -16,6 +18,8 @@ app.use(express.json());
 // Rotas de autenticação
 app.use('/api/auth', authRoutes);
 app.use('/api/itens', itemRoutes);
+app.use('/api/movimentacoes', movimentacaoRoutes);
+app.use('/api/setores', setorRoutes);
 
 // Rota de teste (já funcionando)
 app.get('/teste', async (req, res) => {
@@ -27,7 +31,7 @@ app.get('/teste', async (req, res) => {
     });
   } catch (err) {
     console.error('Erro na rota /teste:', err);
-    res.status(500).json({ erro: "Erro ao consultar o banco" });
+    res.status(500).json({ error: "Erro ao consultar o banco" });
   }
 });
 
@@ -43,7 +47,7 @@ app.get('/', (req, res) => {
 // Handler 404 - para rotas não encontradas
 app.use((req, res) => {
   res.status(404).json({
-    erro: 'Rota não encontrada',
+    error: 'Rota não encontrada',
     caminho: req.originalUrl,
     metodo: req.method
   });

@@ -4,6 +4,8 @@ import { Container } from 'react-bootstrap';
 import { Toaster } from 'react-hot-toast';
 import LoginPage from './pages/LoginPage';
 import StockListPage from './pages/StockListPage';
+import MovimentacoesPage from './pages/MovimentacoesPage';
+import SetoresPage from './pages/SetoresPage';
 import Header from './components/layout/Header';
 // Componente que protege rotas (só mostra se tiver token)
 const ProtectedRoute = ({ children }) => {
@@ -40,6 +42,28 @@ function App() {
               <ProtectedRoute>
                 <Container className="py-4 flex-grow-1">
                   <StockListPage />
+                </Container>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/movimentacoes"
+            element={
+              <ProtectedRoute>
+                <Container className="py-4 flex-grow-1">
+                  <MovimentacoesPage />
+                </Container>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/setores"
+            element={
+              <ProtectedRoute>
+                <Container className="py-4 flex-grow-1">
+                  <SetoresPage />
                 </Container>
               </ProtectedRoute>
             }

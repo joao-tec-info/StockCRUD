@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Spinner, Alert } from 'react-bootstrap';
 import { getItens, createItem, updateItem, deleteItem } from '../services/api';
+import MovementModal from '../components/stock/MovementModal';
 import toast from 'react-hot-toast';
 import ItemFormModal from '../components/stock/ItemFormModal';
 import DeleteConfirmModal from '../components/stock/DeleteConfirmModal';
@@ -24,6 +25,10 @@ export default function StockListPage() {
   // Modal de exclusão
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+
+  // Modal de movimentação
+  const [showMovementModal, setShowMovementModal] = useState(false);
+  const [movementItem, setMovementItem] = useState(null);
 
   const handleCloseForm = () => {
     setShowFormModal(false);
@@ -208,6 +213,14 @@ export default function StockListPage() {
                     Editar
                   </Button>
                   <Button
+                    variant="outline-secondary"
+                    size="sm"
+                    className="me-2"
+                    onClick={() => { setMovementItem(item); setShowMovementModal(true); }}
+                  >
+                    Movimentação
+                  </Button>
+                  <Button
                     variant="outline-danger"
                     size="sm"
                     onClick={() => handleShowDelete(item)}
@@ -239,6 +252,21 @@ export default function StockListPage() {
         onHide={handleCloseDelete}
         onConfirm={handleConfirmDelete}
         itemName={itemToDelete?.nome || ''}
+      />
+
+      <MovementModal
+        show={showMovementModal}
+        onHide={() => { setShowMovementModal(false); setMovementItem(null); }}
+        item={movementItem}
+        onDone={async () => {
+          // refresh itens after movimentação
+          try {
+            const res = await getItens();
+            setItens(res.data);
+          } catch (err) {
+            console.error('Erro ao atualizar itens', err);
+          }
+        }}
       />
     </div>
   );

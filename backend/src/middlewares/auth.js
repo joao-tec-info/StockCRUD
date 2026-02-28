@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
 
   if (!token) {
     console.log('[auth] Token não fornecido para', req.method, req.originalUrl);
-    return res.status(401).json({ erro: 'Token não fornecido. Faça login novamente.' });
+    return res.status(401).json({ error: 'Token não fornecido. Faça login novamente.' });
   }
 
   try {
@@ -24,6 +24,9 @@ module.exports = (req, res, next) => {
     next(); // continua para a rota
   } catch (err) {
     console.log('[auth] Token inválido/expirado para', req.method, req.originalUrl, err.message);
-    return res.status(401).json({ erro: 'Token inválido ou expirado. Faça login novamente.' });
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expirado. Faça login novamente.' });
+    }
+    return res.status(401).json({ error: 'Token inválido. Faça login novamente.' });
   }
 };

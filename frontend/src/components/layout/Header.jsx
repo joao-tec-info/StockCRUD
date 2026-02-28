@@ -2,6 +2,7 @@ import { Navbar, Container, Nav } from 'react-bootstrap';
 import { FiPackage } from 'react-icons/fi';
 
 export default function Header() {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   return (
     <Navbar bg="dark" variant="dark" expand="lg" className="shadow" >
       <Container>
@@ -14,8 +15,9 @@ export default function Header() {
         
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link href="#">Início</Nav.Link>
-            <Nav.Link href="#">Sobre</Nav.Link>
+            <Nav.Link href="/">Início</Nav.Link>
+            <Nav.Link href="/setores">Setores</Nav.Link>
+            {token && <Nav.Link href="/movimentacoes">Movimentações</Nav.Link>}
           </Nav>
         </Navbar.Collapse>
       </Container>

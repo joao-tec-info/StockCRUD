@@ -13,7 +13,7 @@ router.post('/login', async (req, res) => {
 
   // Validação básica
   if (!usuario || !senha) {
-    return res.status(400).json({ erro: 'Usuário e senha são obrigatórios' });
+    return res.status(400).json({ error: 'Usuário e senha são obrigatórios' });
   }
 
   try {
@@ -21,7 +21,7 @@ router.post('/login', async (req, res) => {
     const result = await pool.query('SELECT * FROM usuarios WHERE usuario = $1', [usuario]);
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ erro: 'Credenciais inválidas' });
+      return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
     const user = result.rows[0];
@@ -30,7 +30,7 @@ router.post('/login', async (req, res) => {
     const senhaCorreta = await bcrypt.compare(senha, user.senha);
 
     if (!senhaCorreta) {
-      return res.status(401).json({ erro: 'Credenciais inválidas' });
+      return res.status(401).json({ error: 'Credenciais inválidas' });
     }
 
     // Gera o token JWT
@@ -56,7 +56,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error('Erro no login:', err);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    res.status(500).json({ error: 'Erro interno no servidor' });
   }
 });
 

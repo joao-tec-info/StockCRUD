@@ -31,13 +31,25 @@ INSERT INTO itens (nome, quantidade, preco, minimo)
 VALUES ('Item de exemplo', 5, 19.90, 3) ON CONFLICT DO NOTHING;
 
 -- Tabela de movimentações 
+-- Tabela de setores
+CREATE TABLE IF NOT EXISTS setores (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) UNIQUE NOT NULL
+);
+
+-- Coluna de setor em itens (se ainda não existir será adicionada em migração)
+-- criada dinamicamente em runtime para bancos existentes
+
+-- Tabela de movimentações (registra entradas, saídas e transferências)
 CREATE TABLE IF NOT EXISTS movimentacoes (
     id SERIAL PRIMARY KEY,
-    produto_id INTEGER NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
-    tipo VARCHAR(10) NOT NULL CHECK (tipo IN ('entrada', 'saida')),
+    item_id INTEGER NOT NULL REFERENCES itens(id) ON DELETE CASCADE,
+    tipo VARCHAR(20) NOT NULL CHECK (tipo IN ('entrada', 'saida', 'transferencia')),
     quantidade INTEGER NOT NULL CHECK (quantidade > 0),
     data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    usuario_id INTEGER NOT NULL REFERENCES usuarios(id)
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    setor_origem INTEGER REFERENCES setores(id),
+    setor_destino INTEGER REFERENCES setores(id)
 );
 
 -- Popular um admin ou outros usuarios de teste (senha: admin123 - hash gerado com bcrypt)
