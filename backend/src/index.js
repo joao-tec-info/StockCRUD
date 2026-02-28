@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./config/db');
 const itemRoutes = require('./routes/itemRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(cors());
 app.use(express.json());
 
 // Rotas
+// Rotas de autenticação
+app.use('/api/auth', authRoutes);
 app.use('/api/itens', itemRoutes);
 
 // Rota de teste (já funcionando)
@@ -28,7 +31,7 @@ app.get('/teste', async (req, res) => {
   }
 });
 
-// Rota padrão (opcional - ajuda a saber que o servidor está vivo)
+// Rota padrão (ajuda a saber que o servidor está vivo)
 app.get('/', (req, res) => {
   res.json({
     status: 'online',
@@ -37,7 +40,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Handler 404 - para rotas não encontradas (muito útil para debug)
+// Handler 404 - para rotas não encontradas
 app.use((req, res) => {
   res.status(404).json({
     erro: 'Rota não encontrada',
