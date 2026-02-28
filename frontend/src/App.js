@@ -1,25 +1,38 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
-import Header from './components/layout/Header';
-import StockListPage from './pages/StockListPage';
 import { Toaster } from 'react-hot-toast';
+import LoginPage from './pages/LoginPage';     
+import StockListPage from './pages/StockListPage';
+import ProtectedRoute from './components/ProtectedRoute.jsx'; 
 
 function App() {
   return (
-    <>
-      <Header />
-      
-      <Container className="mt-4 mb-5">
-          <StockListPage />
-      </Container>
+    <Router>
+      <div className="min-vh-100 d-flex flex-column">
+        <Routes>
+          {/* Rota pública: Login */}
+          <Route path="/login" element={<LoginPage />} />
 
-      <Toaster 
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: { fontSize: '16px' }
-        }}
-      />
-    </>
+          {/* Rotas protegidas */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Container className="py-4 flex-grow-1">
+                  <StockListPage />
+                </Container>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Redireciona qualquer outra URL para login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+
+        <Toaster position="top-right" />
+      </div>
+    </Router>
   );
 }
 
