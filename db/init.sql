@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS produtos (
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tabela de itens (usada pelo backend)
+CREATE TABLE IF NOT EXISTS itens (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    quantidade INTEGER NOT NULL CHECK (quantidade >= 0),
+    preco NUMERIC(12,2) NOT NULL CHECK (preco >= 0),
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insere item de exemplo
+INSERT INTO itens (nome, quantidade, preco)
+VALUES ('Item de exemplo', 5, 19.90) ON CONFLICT DO NOTHING;
+
 -- Tabela de movimentações 
 CREATE TABLE IF NOT EXISTS movimentacoes (
     id SERIAL PRIMARY KEY,

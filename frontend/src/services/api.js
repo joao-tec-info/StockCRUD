@@ -7,7 +7,7 @@ const api = axios.create({
   },
 });
 
-// Interceptor: adiciona o token automaticamente em TODAS as requisições
+// INTERCEPTOR: adiciona o token automaticamente em TODAS as requisições protegidas
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -21,15 +21,13 @@ api.interceptors.request.use(
   }
 );
 
-
+// Funções exportadas 
+export const login = (credentials) => api.post('/auth/login', credentials);
 export const getItens = () => api.get('/itens');
 export const createItem = (data) => api.post('/itens', data);
 export const getItemById = (id) => api.get(`/itens/${id}`);
 export const updateItem = (id, data) => api.put(`/itens/${id}`, data);
 export const deleteItem = (id) => api.delete(`/itens/${id}`);
 
-// Função de login 
-export const login = (credentials) => api.post('/auth/login', credentials);
-
-// Funções futuras
-export const getCurrentUser = () => api.get('/auth/me'); // exemplo de rota /me
+// Funções futuras (adicione quando precisar)
+export const getCurrentUser = () => api.get('/auth/me'); // exemplo para rota /me

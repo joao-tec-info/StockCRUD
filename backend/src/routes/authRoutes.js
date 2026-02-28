@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
 
 // Chave secreta do JWT (mude para uma forte e coloque em .env depois)
-const JWT_SECRET = 'sua-chave-secreta-super-forte-123456789'; // temporário
+const JWT_SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-super-forte-1234567890abcdef'; // temporário
 
 // Rota de login (POST /api/auth/login)
 router.post('/login', async (req, res) => {

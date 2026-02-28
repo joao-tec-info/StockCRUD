@@ -1,21 +1,29 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-muito-forte-123456789'; // coloque em .env depois
+// Chave secreta (use .env em)
+const JWT_SECRET = process.env.JWT_SECRET || 'sua-chave-secreta-super-forte-1234567890abcdef';
 
-const authMiddleware = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1]; // Bearer <token>
+module.exports = (req, res, next) => {
+  // Pega o token do header Authorization: Bearer <token>
+  const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'Token não fornecido' });
+    console.log('[auth] Token não fornecido para', req.method, req.originalUrl);
+    return res.status(401).json({ erro: 'Token não fornecido. Faça login novamente.' });
   }
 
   try {
+    // Verifica e decodifica o token
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // salva id, usuario, perfil na requisição
-    next();
+
+    console.log('[auth] Token verificado:', { id: decoded.id, usuario: decoded.usuario, perfil: decoded.perfil });
+
+    // Salva os dados do usuário na requisição (para usar em controllers)
+    req.user = decoded; // { id, usuario, perfil }
+
+    next(); // continua para a rota
   } catch (err) {
-    return res.status(401).json({ error: 'Token inválido ou expirado' });
+    console.log('[auth] Token inválido/expirado para', req.method, req.originalUrl, err.message);
+    return res.status(401).json({ erro: 'Token inválido ou expirado. Faça login novamente.' });
   }
 };
-
-module.exports = authMiddleware;

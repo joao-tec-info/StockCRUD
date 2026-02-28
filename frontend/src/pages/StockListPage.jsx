@@ -144,7 +144,7 @@ export default function StockListPage() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-4">
+      <div className="d-flex justify-content-between align-items-center mb-4 mt-3">
         <h2 className="mb-0">Estoque Atual</h2>
         <Button variant="success" size="lg" onClick={handleShowCreate}>
           + Novo Item

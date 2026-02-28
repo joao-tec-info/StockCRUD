@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
-import axios from 'axios';
+import { login as apiLogin } from '../services/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,20 +17,16 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
-        usuario,
-        senha,
-      });
-
+      const response = await apiLogin({ usuario, senha });
       const { token } = response.data;
 
       // Salva o token no localStorage
       localStorage.setItem('token', token);
 
       toast.success('Login realizado com sucesso!');
-      navigate('/'); // Redireciona para a página de estoque
+      navigate('/'); // Redireciona para a página protegida (estoque)
     } catch (err) {
-      const msg = err.response?.data?.error || 'Erro ao fazer login. Verifique usuário e senha.';
+      const msg = err.response?.data?.erro || 'Erro ao fazer login. Verifique usuário e senha.';
       setError(msg);
       toast.error(msg);
     } finally {
@@ -81,7 +77,7 @@ const LoginPage = () => {
               </Form>
 
               <div className="text-center mt-4 text-muted">
-                <small>Entre no seu sistema</small>
+                <small>Projeto Final - ADS</small>
               </div>
             </Card.Body>
           </Card>
